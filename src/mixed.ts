@@ -2,9 +2,9 @@ import type { MixedLocale } from './locale';
 
 import { AnyObject, Maybe, Optionals } from './types';
 import type { Defined } from './util/types';
-import BaseSchema from './schema';
+import BaseSchema, { SchemaOptions } from './schema';
 
-declare class MixedSchema<
+interface MixedSchema<
   TType = any,
   TContext = AnyObject,
   TOut = TType
@@ -35,12 +35,20 @@ declare class MixedSchema<
   nullable(isNullable: false): MixedSchema<Exclude<TType, null>, TContext>;
 }
 
-const Mixed: typeof MixedSchema = BaseSchema as any;
+const MixedSchema = BaseSchema as new<
+  TType = any,
+  TContext = AnyObject,
+  TOut = TType
+> (options?: SchemaOptions<any>)=>MixedSchema<
+  TType ,
+  TContext ,
+  TOut
+>;
 
-export default Mixed;
+export default MixedSchema;
 
 export function create<TType = any>() {
-  return new Mixed<TType | undefined>();
+  return new MixedSchema<TType | undefined>();
 }
 // XXX: this is using the Base schema so that `addMethod(mixed)` works as a base class
-create.prototype = Mixed.prototype;
+create.prototype = MixedSchema.prototype;
